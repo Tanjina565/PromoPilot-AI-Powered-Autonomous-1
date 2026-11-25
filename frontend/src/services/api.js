@@ -8,9 +8,9 @@ const getApiBaseUrl = () => {
     if (envUrl) {
       return envUrl.replace('localhost', host).replace('127.0.0.1', host);
     }
-    return `http://${host}:5001/api/v1`;
+    return `http://${host}:5000/api/v1`;
   }
-  return envUrl || 'http://localhost:5001/api/v1';
+  return envUrl || 'http://localhost:5000/api/v1';
 };
 
 const api = axios.create({
