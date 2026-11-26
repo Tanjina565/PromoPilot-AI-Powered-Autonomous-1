@@ -62,45 +62,58 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
     }
   }, [initialData]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleFieldChange = (event) => {
+    const { name, value } = event.target;
+
     if (name.startsWith('contact.')) {
-      const field = name.split('.')[1];
-      setFormData((prev) => ({
-        ...prev,
-        contactDetails: { ...prev.contactDetails, [field]: value },
+      const contactField = name.slice('contact.'.length);
+      setFormData((currentData) => ({
+        ...currentData,
+        contactDetails: {
+          ...currentData.contactDetails,
+          [contactField]: value,
+        },
       }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
     }
+
+    setFormData((currentData) => ({ ...currentData, [name]: value }));
   };
 
-  const handleAddSocial = () => {
-    if (!newSocial.pageName || !newSocial.pageUrl) return;
-    setFormData((prev) => ({
-      ...prev,
-      socialMediaPages: [
-        ...prev.socialMediaPages,
-        { ...newSocial, connected: true, connectedAt: new Date() },
-      ],
+  const handleAddSocialPage = () => {
+    const pageName = newSocial.pageName.trim();
+    const pageUrl = newSocial.pageUrl.trim();
+    if (!pageName || !pageUrl) return;
+
+    const socialPage = {
+      ...newSocial,
+      pageName,
+      pageUrl,
+      connected: true,
+      connectedAt: new Date(),
+    };
+
+    setFormData((currentData) => ({
+      ...currentData,
+      socialMediaPages: [...currentData.socialMediaPages, socialPage],
     }));
     setNewSocial({ platform: 'Facebook', pageName: '', pageUrl: '' });
   };
 
-  const handleRemoveSocial = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      socialMediaPages: prev.socialMediaPages.filter((_, i) => i !== index),
+  const handleRemoveSocialPage = (pageIndex) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      socialMediaPages: currentData.socialMediaPages.filter((_, index) => index !== pageIndex),
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
     onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleFormSubmit} className="space-y-6">
       {/* Basic Profile Details */}
       <div className="space-y-4">
         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -117,7 +130,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
               name="businessName"
               required
               value={formData.businessName}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               placeholder="e.g. Aura Lifestyle BD"
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
@@ -130,7 +143,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
             <select
               name="category"
               value={formData.category}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
             >
               {CATEGORIES.map((cat) => (
@@ -151,7 +164,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
             required
             rows={2}
             value={formData.targetAudience}
-            onChange={handleChange}
+            onChange={handleFieldChange}
             placeholder="e.g. University students, fashion enthusiasts, and young professionals aged 18-30 in Bangladesh"
             className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           />
@@ -165,7 +178,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
             <select
               name="brandTone"
               value={formData.brandTone}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
             >
               {TONES.map((tone) => (
@@ -187,7 +200,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
                   name="preferredLanguage"
                   value="English"
                   checked={formData.preferredLanguage === 'English'}
-                  onChange={handleChange}
+                  onChange={handleFieldChange}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
                 English
@@ -198,7 +211,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
                   name="preferredLanguage"
                   value="Bangla"
                   checked={formData.preferredLanguage === 'Bangla'}
-                  onChange={handleChange}
+                  onChange={handleFieldChange}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
                 বাংলা (Bangla)
@@ -220,7 +233,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
               type="email"
               name="contact.email"
               value={formData.contactDetails.email}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               placeholder="contact@brand.com"
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
             />
@@ -231,7 +244,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
               type="text"
               name="contact.phone"
               value={formData.contactDetails.phone}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               placeholder="+8801700000000"
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
             />
@@ -242,7 +255,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
               type="text"
               name="contact.address"
               value={formData.contactDetails.address}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               placeholder="Dhanmondi, Dhaka"
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
             />
@@ -253,7 +266,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
               type="url"
               name="contact.website"
               value={formData.contactDetails.website}
-              onChange={handleChange}
+              onChange={handleFieldChange}
               placeholder="https://example.com"
               className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
             />
@@ -284,7 +297,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleRemoveSocial(idx)}
+                  onClick={() => handleRemoveSocialPage(idx)}
                   className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -324,7 +337,7 @@ export const BusinessForm = ({ initialData, onSubmit, onCancel, loading }) => {
           </div>
           <button
             type="button"
-            onClick={handleAddSocial}
+            onClick={handleAddSocialPage}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Bind Social Page
