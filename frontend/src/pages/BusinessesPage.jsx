@@ -52,11 +52,13 @@ export const BusinessesPage = () => {
     setTimeout(() => setNotification(''), 4000);
   };
 
-  const handleCreateOrUpdate = async (formData) => {
+  const handleSaveBusiness = async (formData) => {
     setActionLoading(true);
     try {
+      const businessId = editingBusiness?._id || editingBusiness?.id;
+
       if (editingBusiness) {
-        await businessService.update(editingBusiness._id || editingBusiness.id, formData);
+        await businessService.update(businessId, formData);
         showNotification('Business profile updated successfully!');
       } else {
         await businessService.create(formData);
@@ -64,7 +66,7 @@ export const BusinessesPage = () => {
       }
       setIsFormOpen(false);
       setEditingBusiness(null);
-      fetchBusinesses();
+      await fetchBusinesses();
     } catch (err) {
       alert(err.message || 'Operation failed');
     } finally {
@@ -76,10 +78,11 @@ export const BusinessesPage = () => {
     if (!deletingBusiness) return;
     setActionLoading(true);
     try {
-      await businessService.delete(deletingBusiness._id || deletingBusiness.id);
+      const businessId = deletingBusiness._id || deletingBusiness.id;
+      await businessService.delete(businessId);
       showNotification('Business profile deleted successfully!');
       setDeletingBusiness(null);
-      fetchBusinesses();
+      await fetchBusinesses();
     } catch (err) {
       alert(err.message || 'Deletion failed');
     } finally {
@@ -223,7 +226,7 @@ export const BusinessesPage = () => {
       >
         <BusinessForm
           initialData={editingBusiness}
-          onSubmit={handleCreateOrUpdate}
+          onSubmit={handleSaveBusiness}
           onCancel={() => {
             setIsFormOpen(false);
             setEditingBusiness(null);

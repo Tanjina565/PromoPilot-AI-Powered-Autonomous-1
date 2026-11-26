@@ -44,14 +44,14 @@ export const ProductsPage = () => {
     fetchBusinesses();
   }, []);
 
-  const fetchProducts = async (bId) => {
-    if (!bId) return;
+  const fetchProducts = async (businessId) => {
+    if (!businessId) return;
     setLoading(true);
     try {
-      const res = await productService.getByBusiness(bId);
-      setProducts(res.data || []);
-    } catch (err) {
-      console.error(err);
+      const response = await productService.getByBusiness(businessId);
+      setProducts(response.data || []);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -63,11 +63,11 @@ export const ProductsPage = () => {
     }
   }, [selectedBusinessId]);
 
-  const handleCreateProduct = async (e) => {
-    e.preventDefault();
+  const handleCreateProduct = async (event) => {
+    event.preventDefault();
     try {
-      const featuresArr = formData.features
-        ? formData.features.split(',').map((f) => f.trim()).filter(Boolean)
+      const features = formData.features
+        ? formData.features.split(',').map((feature) => feature.trim()).filter(Boolean)
         : [];
 
       await productService.create({
@@ -75,9 +75,9 @@ export const ProductsPage = () => {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        price: parseFloat(formData.price),
+        price: Number.parseFloat(formData.price),
         currency: formData.currency,
-        features: featuresArr,
+        features,
       });
 
       setIsModalOpen(false);
@@ -89,19 +89,19 @@ export const ProductsPage = () => {
         currency: 'BDT',
         features: '',
       });
-      fetchProducts(selectedBusinessId);
-    } catch (err) {
-      alert(err.message || 'Failed to add product');
+      await fetchProducts(selectedBusinessId);
+    } catch (error) {
+      alert(error.message || 'Failed to add product');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (productId) => {
     if (!window.confirm('Delete this product?')) return;
     try {
-      await productService.delete(id);
-      fetchProducts(selectedBusinessId);
-    } catch (err) {
-      alert('Delete failed');
+      await productService.delete(productId);
+      await fetchProducts(selectedBusinessId);
+    } catch (error) {
+      alert(error.message || 'Delete failed');
     }
   };
 
